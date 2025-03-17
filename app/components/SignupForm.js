@@ -3,6 +3,7 @@
 import { signup } from "../actions/authActions";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
+import { useState } from "react";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -20,20 +21,32 @@ function SubmitButton() {
 
 export default function SignupForm() {
     const router = useRouter();
+    const [error, setError] = useState("");
 
     async function handleSubmit(formData) {
-        const result = await signup(formData);
-        if (result.success) {
-            router.push("/dashboard");
-            router.refresh();
-        } else {
-            alert(result.error);
+        try {
+            const result = await signup(formData);
+            if (result.success) {
+                router.push("/dashboard");
+                router.refresh();
+            } else {
+                setError(result.error || "An error occurred during signup");
+            }
+        } catch (e) {
+            setError("An unexpected error occurred");
+            console.error(e);
         }
     }
 
     return (
         <div className='bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10'>
             <form action={handleSubmit} className='space-y-6'>
+                {error && (
+                    <div className='bg-red-50 border-l-4 border-red-400 p-4 mb-4'>
+                        <p className='text-red-700'>{error}</p>
+                    </div>
+                )}
+
                 <div>
                     <label
                         htmlFor='email'
@@ -48,7 +61,7 @@ export default function SignupForm() {
                             type='email'
                             autoComplete='email'
                             required
-                            className='appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700'
+                            className='text-gray-700 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500'
                         />
                     </div>
                 </div>
@@ -67,7 +80,7 @@ export default function SignupForm() {
                             type='password'
                             autoComplete='new-password'
                             required
-                            className='appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-700'
+                            className='text-gray-700 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500'
                         />
                     </div>
                 </div>

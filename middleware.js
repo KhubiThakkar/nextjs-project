@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function middleware(request) {
     const session = request.cookies.get("session");
 
     // Paths that don't require authentication
     const publicPaths = ["/", "/login", "/signup"];
+    const isPublicPath = publicPaths.includes(request.nextUrl.pathname);
 
-    if (!session && !publicPaths.includes(request.nextUrl.pathname)) {
+    if (!session && !isPublicPath) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (session && publicPaths.includes(request.nextUrl.pathname)) {
+    if (session && isPublicPath) {
         return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
